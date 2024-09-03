@@ -1,0 +1,4 @@
+.envrc
+*.log
+.idea
+.vscode
