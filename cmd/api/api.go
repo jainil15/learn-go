@@ -28,9 +28,12 @@ func NewAPIServer(addr string, db *sqlx.DB) *APIServer {
 func (server *APIServer) Run() error {
 	router := http.NewServeMux()
 	log.Println("Server started at 8080 ")
+	// Health handler
 	healthHandler := health.NewHandler()
 	healthHandler.RegiesterRoutes(router)
+	// User handler
 	userHandler := user.NewHandler(user.NewStore(server.db))
 	userHandler.RegisterRoutes(router)
+
 	return http.ListenAndServe(server.addr, router)
 }

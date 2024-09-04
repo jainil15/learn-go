@@ -8,7 +8,7 @@ CREATE TABLE users (
     password_hash varchar(255),
     created_at timestamp(0) not null default (now() at time zone 'utc'),
     updated_at timestamp(0) not null default (now() at time zone 'utc')
-);
+  );
 -- +goose StatementEnd
 
 -- +goose Down

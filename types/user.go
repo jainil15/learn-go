@@ -1,11 +1,10 @@
 package types
 
 import (
-  "time"
-  _ "github.com/go-playground/validator/v10"
+	"time"
+
+	_ "github.com/go-playground/validator/v10"
 )
-
-
 
 type User struct {
 	Id           string    `db:"id" json:"id"`
@@ -18,7 +17,7 @@ type User struct {
 }
 
 type RegisterUser struct {
-  FirstName    string `db:"first_name" json:"first_name" validate:"required"`
+	FirstName    string `db:"first_name" json:"first_name" validate:"required"`
 	LastName     string `db:"last_name" json:"last_name"`
 	Email        string `db:"email" json:"email"`
 	PasswordHash string `db:"password_hash" json:"password_hash"`
@@ -32,6 +31,6 @@ type RegisterUserPayload struct {
 }
 
 type LoginUser struct {
-  Email string `db:"email" json:"email"`
-  Password string `db:"email" json:"password"`
+	Email    string `db:"email" json:"email"`
+	Password string `db:"email" json:"password"`
 }

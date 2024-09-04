@@ -1,9 +1,10 @@
 package user
 
 import (
-	"github.com/jmoiron/sqlx"
 	"learn/go/types"
 	"log"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type UserStore interface {
