@@ -1,0 +1,3 @@
+#+title: Agenda
+
+* TODO : Merge types in user
