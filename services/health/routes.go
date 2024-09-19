@@ -14,7 +14,6 @@ func NewHandler() *Handler {
 
 func (h *Handler) RegiesterRoutes(router *http.ServeMux) {
 	router.HandleFunc("GET /server-health", func(w http.ResponseWriter, r *http.Request) {
-
 		err := utils.ResponseHandler(w, &utils.SuccessResponse{
 			StatusCode: 200,
 			Result: struct {
