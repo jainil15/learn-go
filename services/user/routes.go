@@ -45,14 +45,14 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println(payload)
-  PasswordHash,err := bcrypt.GenerateFromPassword([]byte(
-    payload.Password,
-  ), 10)
-	user, err := h.store.Register(&types.RegisterUser{
+	PasswordHash, err := bcrypt.GenerateFromPassword([]byte(
+		payload.Password,
+	), 10)
+	user, err := h.store.Register(&RegisterUser{
 		FirstName:    payload.FirstName,
 		LastName:     payload.LastName,
 		Email:        payload.Email,
-		PasswordHash: string(PasswordHash), 
+		PasswordHash: string(PasswordHash),
 	})
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
@@ -72,7 +72,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message: err.Error(),
-})
+		})
 		return
 	}
 }

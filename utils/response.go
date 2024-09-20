@@ -23,6 +23,7 @@ func ResponseHandler(w http.ResponseWriter, s *SuccessResponse) error {
 	if err != nil {
 		return err
 	}
+	w.WriteHeader(s.StatusCode)
 	w.Header().Add("Content-type", "application/json")
 	w.Write(val)
 	return nil
@@ -34,6 +35,7 @@ func ErrorHandler(w http.ResponseWriter, e *ErrorResponse) {
 		log.Fatalln(err)
 		return
 	}
+	w.WriteHeader(e.StatusCode)
 	w.Header().Add("Content-type", "application/json")
 	_, err = w.Write(val)
 	if err != nil {
