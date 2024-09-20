@@ -2,6 +2,7 @@ package auth
 
 import (
 	"learn/go/services/user"
+	"learn/go/utils"
 	"net/http"
 )
 
@@ -18,4 +19,13 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
+	user := h.store.GetAll()
+	err := utils.ResponseHandler(w, &utils.SuccessResponse{
+		StatusCode: http.StatusOK,
+		Result:     user,
+		Message:    "Success",
+	})
+	if err != nil {
+		return
+	}
 }
