@@ -29,6 +29,16 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	valErrors := payload.validate()
+	if len(valErrors) > 0 {
+		utils.ErrorHandler(w, &utils.ErrorResponse{
+			Message:    "Validation error",
+			Error:      valErrors,
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+
 	user, err := h.store.GetByEmail(payload.Email)
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
@@ -40,12 +50,15 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	if !utils.ComparePassword(payload.Password, user.PasswordHash) {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
-			Message:    "Invalid password",
+			Message: "Invalid password",
+			Error: map[string][]string{
+				"password": {"Invalid password"},
+			},
 			StatusCode: http.StatusUnauthorized,
 		})
 		return
 	}
-	log.Printf("Request: %v", user.Email)
+	log.Printf("Request: %v\n", user.Email)
 	err = utils.ResponseHandler(
 		w,
 		&utils.SuccessResponse{

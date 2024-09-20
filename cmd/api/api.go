@@ -1,6 +1,7 @@
 package api
 
 import (
+	"learn/go/services/auth"
 	"learn/go/services/health"
 	"learn/go/services/user"
 	"log"
@@ -34,6 +35,9 @@ func (server *APIServer) Run() error {
 	// User handler
 	userHandler := user.NewHandler(user.NewStore(server.db))
 	userHandler.RegisterRoutes(router)
+	// Auth handler
+	authHandler := auth.NewHandler(user.NewStore(server.db))
+	authHandler.RegisterRoutes(router)
 
 	return http.ListenAndServe(server.addr, router)
 }

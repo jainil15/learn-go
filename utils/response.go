@@ -20,23 +20,37 @@ type ErrorResponse struct {
 
 func ResponseHandler(w http.ResponseWriter, s *SuccessResponse) error {
 	val, err := json.Marshal(s)
+	if s.StatusCode == 0 {
+		s.StatusCode = http.StatusOK
+	}
+	if s.Message == "" {
+		s.Message = "Success"
+	}
 	if err != nil {
 		return err
 	}
-	w.WriteHeader(s.StatusCode)
 	w.Header().Add("Content-type", "application/json")
+	w.WriteHeader(s.StatusCode)
 	w.Write(val)
 	return nil
 }
 
 func ErrorHandler(w http.ResponseWriter, e *ErrorResponse) {
+	if e.StatusCode == 0 {
+		e.StatusCode = http.StatusInternalServerError
+	}
+	// if e.Error == nil {
+	// 	e.Error = map[string]interface{}{
+	// 		"server": e.Message,
+	// 	}
+	// }
 	val, err := json.Marshal(e)
 	if err != nil {
 		log.Fatalln(err)
 		return
 	}
-	w.WriteHeader(e.StatusCode)
 	w.Header().Add("Content-type", "application/json")
+	w.WriteHeader(e.StatusCode)
 	_, err = w.Write(val)
 	if err != nil {
 		return

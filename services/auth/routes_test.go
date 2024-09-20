@@ -17,11 +17,12 @@ func TestAuthServiceHandler(t *testing.T) {
 		t.Error("Handler is nil")
 	}
 	t.Run("TEST", func(t *testing.T) {
-		payload := LoginPayload{
-			Email:    "jainilpatel115@gmail.com",
-			Password: "password",
+		payload := &LoginPayload{
+			Email:    "jainil115@gmail.com",
+			Password: "Passw2ord",
 		}
 		marshal, err := json.Marshal(payload)
+		log.Printf("Marshal: %v", string(marshal))
 		if err != nil {
 			t.Error("Error in marshalling")
 		}
@@ -36,7 +37,7 @@ func TestAuthServiceHandler(t *testing.T) {
 		router.ServeHTTP(rr, req)
 		log.Printf("Response: %v", rr.Code)
 		if rr.Code != http.StatusOK {
-			t.Error("Error in response")
+			t.Errorf("Error in response %v", rr.Body)
 		}
 	})
 }

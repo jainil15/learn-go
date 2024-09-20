@@ -41,11 +41,12 @@ func (s *Store) Register(user *RegisterUser) (*User, error) {
 		StructScan(&u)
 	if err != nil {
 		log.Println("Error in Rollback", err)
-		err := tx.Rollback()
-		if err != nil {
+		txerr := tx.Rollback()
+		if txerr != nil {
 			log.Println("Another error in rollback")
 			return nil, err
 		}
+		log.Println("Error in Register", err)
 		return nil, err
 	}
 	err = tx.Commit()
@@ -57,9 +58,9 @@ func (s *Store) Register(user *RegisterUser) (*User, error) {
 
 func (s *Store) GetByEmail(email string) (*User, error) {
 	tx := s.db.MustBegin()
-	query := "SELECT email, password_hash FROM users"
+	query := "SELECT * FROM users WHERE email=$1 LIMIT 1"
 	var u User
-	err := s.db.Select(&u, query)
+	err := s.db.Get(&u, query, email)
 	if err != nil {
 		return nil, err
 	}

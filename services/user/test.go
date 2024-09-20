@@ -12,7 +12,8 @@ func (m *MockUserStore) Register(user *RegisterUser) (*User, error) {
 
 func (m *MockUserStore) GetByEmail(email string) (*User, error) {
 	return &User{
-		Id:    "1",
-		Email: "email",
+		Id:           "1",
+		Email:        email,
+		PasswordHash: "$2a$10$Ml6f3xGiiFPDZeyKH5xt2.e7FoemFtfXb4KchgD1GM5uk0kMEqHVS",
 	}, nil
 }
