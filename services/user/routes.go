@@ -3,10 +3,7 @@ package user
 import (
 	"learn/go/types"
 	"learn/go/utils"
-	"log"
 	"net/http"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type Handler struct {
@@ -51,7 +48,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		Password:  payload.Password,
 	}
 	error := registerUserPayload.validate()
-	if error != nil {
+	if len(error) > 0 {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message:    "Validation error",
 			Error:      error,
@@ -71,9 +68,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	PasswordHash, err := bcrypt.GenerateFromPassword([]byte(
-		payload.Password,
-	), 10)
+	PasswordHash, err := utils.EncryptPassword(payload.Password)
 	user, err := h.store.Register(&RegisterUser{
 		FirstName:    registerUserPayload.FirstName,
 		LastName:     registerUserPayload.LastName,
@@ -94,10 +89,9 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	log.Println(payload)
 	err = utils.ResponseHandler(w, &utils.SuccessResponse{
 		StatusCode: http.StatusOK,
-		Result:     user,
+		Result:     map[string]interface{}{"user": user},
 		Message:    "Success",
 	})
 	if err != nil {

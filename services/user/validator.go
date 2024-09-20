@@ -1,10 +1,7 @@
 package user
 
 import (
-	"learn/go/config"
 	"regexp"
-
-	"github.com/go-playground/validator/v10"
 )
 
 func (r *RegisterUserPayload) validate() (errorMap map[string][]string) {
@@ -28,7 +25,7 @@ func (r *RegisterUserPayload) validate() (errorMap map[string][]string) {
 	if r.FirstName == "" {
 		errorMap["first_name"] = append(errorMap["first_name"], "First name is required")
 	}
-	if len(r.FirstName) < 2 {
+	if r.FirstName != "" && len(r.FirstName) < 2 {
 		errorMap["first_name"] = append(
 			errorMap["first_name"],
 			"First name must be at least 2 characters",
@@ -37,21 +34,11 @@ func (r *RegisterUserPayload) validate() (errorMap map[string][]string) {
 	if r.LastName == "" {
 		errorMap["last_name"] = append(errorMap["last_name"], "Last name is required")
 	}
-	if len(r.LastName) < 2 {
+	if r.LastName != "" && len(r.LastName) < 2 {
 		errorMap["last_name"] = append(
 			errorMap["last_name"],
 			"Last name must be at least 2 characters",
 		)
 	}
 	return
-}
-
-func (l *LoginUser) validate() (errorMap map[string]interface{}) {
-	err := config.Validate.Struct(l)
-	if err != nil {
-		return map[string]interface{}{
-			"error": err.(validator.ValidationErrors),
-		}
-	}
-	return nil
 }
