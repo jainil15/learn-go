@@ -19,7 +19,9 @@ func NewHandler(userStore user.UserStore, sessionStore session.SessionStore) *Ha
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
-	router.HandleFunc("POST /auth/login", h.handleLogin)
+	router.HandleFunc("POST /auth/login",
+		h.handleLogin,
+	)
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
