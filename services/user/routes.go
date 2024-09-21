@@ -3,7 +3,7 @@ package user
 import (
 	"fmt"
 	"learn/go/middlewares"
-	"learn/go/types"
+	"learn/go/models"
 	"learn/go/utils"
 	"net/http"
 )
@@ -37,7 +37,7 @@ func (h *Handler) handleGetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
-	var payload types.RegisterUserPayload
+	var payload models.RegisterUserPayload
 
 	err := utils.ParseJSON(r, &payload)
 	if err != nil {
@@ -46,13 +46,13 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	registerUserPayload := &RegisterUserPayload{
+	registerUserPayload := &models.RegisterUserPayload{
 		FirstName: payload.FirstName,
 		LastName:  payload.LastName,
 		Email:     payload.Email,
 		Password:  payload.Password,
 	}
-	error := registerUserPayload.validate()
+	error := registerUserPayload.Validate()
 	if len(error) > 0 {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message:    "Validation error",
@@ -74,7 +74,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	PasswordHash, err := utils.EncryptPassword(payload.Password)
-	user, err := h.store.Register(&RegisterUser{
+	user, err := h.store.Register(&models.RegisterUser{
 		FirstName:    registerUserPayload.FirstName,
 		LastName:     registerUserPayload.LastName,
 		Email:        registerUserPayload.Email,

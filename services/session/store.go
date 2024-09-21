@@ -1,6 +1,7 @@
 package session
 
 import (
+	"learn/go/models"
 	"log"
 	"time"
 
@@ -8,8 +9,8 @@ import (
 )
 
 type SessionStore interface {
-	CreateSession(userId string) (*Session, error)
-	GetSessionByID(userId string) (*Session, error)
+	CreateSession(userId string) (*models.Session, error)
+	GetSessionByID(userId string) (*models.Session, error)
 }
 
 type Store struct {
@@ -22,11 +23,11 @@ func NewStore(db *sqlx.DB) *Store {
 	}
 }
 
-func (s *Store) CreateSession(userId string) (*Session, error) {
+func (s *Store) CreateSession(userId string) (*models.Session, error) {
 	log.Printf("Creating session for user: %v", userId)
 	tx := s.db.MustBegin()
 	query := "INSERT INTO sessions (user_id, expires_at) VALUES ($1, $2) RETURNING *"
-	var session Session
+	var session models.Session
 	err := s.db.QueryRowx(query, userId, time.Now()).StructScan(&session)
 	if err != nil {
 		errR := tx.Rollback()
@@ -46,10 +47,10 @@ func (s *Store) CreateSession(userId string) (*Session, error) {
 	return &session, nil
 }
 
-func (s *Store) GetSessionByID(userId string) (*Session, error) {
+func (s *Store) GetSessionByID(userId string) (*models.Session, error) {
 	log.Printf("Getting session for user: %v", userId)
 	query := "SELECT * FROM sessions WHERE user_id=$1"
-	var session Session
+	var session models.Session
 	err := s.db.Get(&session, query, userId)
 	if err != nil {
 		return nil, err

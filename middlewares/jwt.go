@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"learn/go/config"
-	"learn/go/types"
+	"learn/go/models"
 	"learn/go/utils"
 	"log"
 	"net/http"
@@ -51,7 +51,7 @@ func CheckAccessToken(handlerFunc http.HandlerFunc) http.HandlerFunc {
 		}
 		encode, _ := json.Marshal(claims["user"])
 		// This is dogshit code maybe...........
-		u := types.User{}
+		u := models.User{}
 		_ = json.Unmarshal(encode, &u)
 		ctx = context.WithValue(ctx, "user", u)
 		r = r.WithContext(ctx)

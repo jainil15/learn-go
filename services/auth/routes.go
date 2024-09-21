@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"learn/go/models"
 	"learn/go/services/session"
 	"learn/go/services/user"
 	"learn/go/utils"
@@ -22,7 +23,7 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
-	payload := LoginPayload{}
+	payload := models.LoginPayload{}
 	err := utils.ParseJSON(r, &payload)
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
@@ -31,7 +32,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	valErrors := payload.validate()
+	valErrors := payload.Validate()
 	if valErrors != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message:    "Validation error",
@@ -74,7 +75,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	log.Printf("Request: %v\n", user.Email)
-	accessToken, err := user.Createtoken()
+	accessToken, err := utils.CreateToken(user)
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message: err.Error(),

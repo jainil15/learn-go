@@ -3,6 +3,7 @@ package auth
 import (
 	"bytes"
 	"encoding/json"
+	"learn/go/models"
 	"learn/go/services/session"
 	"learn/go/services/user"
 	"log"
@@ -20,7 +21,7 @@ func TestAuthServiceHandler(t *testing.T) {
 		t.Error("Handler is nil")
 	}
 	t.Run("TEST", func(t *testing.T) {
-		payload := &LoginPayload{
+		payload := &models.LoginPayload{
 			Email:    "jainil115@gmail.com",
 			Password: "Passw2ord",
 		}

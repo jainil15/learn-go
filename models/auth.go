@@ -1,11 +1,16 @@
-package auth
+package models
 
 import (
 	"regexp"
 	"strings"
 )
 
-func (payload *LoginPayload) validate() (errorMap map[string][]string) {
+type LoginPayload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (payload *LoginPayload) Validate() (errorMap map[string][]string) {
 	errorMap = make(map[string][]string)
 	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
 	if strings.TrimSpace(payload.Email) == "" {

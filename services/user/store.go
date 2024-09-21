@@ -1,15 +1,16 @@
 package user
 
 import (
+	"learn/go/models"
 	"log"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type UserStore interface {
-	GetAll() *[]User
-	Register(user *RegisterUser) (*User, error)
-	GetByEmail(email string) (*User, error)
+	GetAll() *[]models.User
+	Register(user *models.RegisterUser) (*models.User, error)
+	GetByEmail(email string) (*models.User, error)
 }
 
 type Store struct {
@@ -22,8 +23,8 @@ func NewStore(db *sqlx.DB) *Store {
 	}
 }
 
-func (s *Store) GetAll() *[]User {
-	var user []User
+func (s *Store) GetAll() *[]models.User {
+	var user []models.User
 	err := s.db.Select(&user, "SELECT * FROM users")
 	if err != nil {
 		return nil
@@ -31,11 +32,11 @@ func (s *Store) GetAll() *[]User {
 	return &user
 }
 
-func (s *Store) Register(user *RegisterUser) (*User, error) {
+func (s *Store) Register(user *models.RegisterUser) (*models.User, error) {
 	tx := s.db.MustBegin()
 	query := "INSERT INTO users (first_name, last_name, email, password_hash) VALUES ($1, $2, $3, $4) RETURNING *;"
 
-	var u User
+	var u models.User
 
 	err := s.db.QueryRowx(query, user.FirstName, user.LastName, user.Email, user.PasswordHash).
 		StructScan(&u)
@@ -56,10 +57,10 @@ func (s *Store) Register(user *RegisterUser) (*User, error) {
 	return &u, nil
 }
 
-func (s *Store) GetByEmail(email string) (*User, error) {
+func (s *Store) GetByEmail(email string) (*models.User, error) {
 	tx := s.db.MustBegin()
 	query := "SELECT * FROM users WHERE email=$1 LIMIT 1"
-	var u User
+	var u models.User
 	err := s.db.Get(&u, query, email)
 	if err != nil {
 		return nil, err
