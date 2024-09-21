@@ -30,7 +30,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	valErrors := payload.validate()
-	if len(valErrors) > 0 {
+	if valErrors != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message:    "Validation error",
 			Error:      valErrors,
