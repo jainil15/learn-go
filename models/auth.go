@@ -1,8 +1,7 @@
 package models
 
 import (
-	"regexp"
-	"strings"
+	"learn/go/validator"
 )
 
 type LoginPayload struct {
@@ -10,19 +9,18 @@ type LoginPayload struct {
 	Password string `json:"password"`
 }
 
-func (payload *LoginPayload) Validate() (errorMap map[string][]string) {
-	errorMap = make(map[string][]string)
-	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	if strings.TrimSpace(payload.Email) == "" {
-		errorMap["email"] = append(errorMap["email"], "Email is required")
+func (payload *LoginPayload) Validate() (errorMap validator.ValidationError) {
+	errorMap = validator.ValidationError{}
+	if !validator.IsRequired(payload.Email) {
+		errorMap.Add("email", "Email is required")
 	}
-	if !emailRegex.MatchString(strings.TrimSpace(payload.Email)) {
-		errorMap["email"] = append(errorMap["email"], "Invalid email format")
+	if !validator.IsEmail(payload.Email) && validator.IsRequired(payload.Email) {
+		errorMap.Add("email", "Email is not valid")
 	}
-	if strings.TrimSpace(payload.Password) == "" {
-		errorMap["password"] = append(errorMap["password"], "Password is required")
+	if !validator.IsRequired(payload.Password) {
+		errorMap.Add("password", "Password is required")
 	}
-	if len(errorMap) == 0 {
+	if errorMap.IsEmpty() {
 		return nil
 	}
 	return
