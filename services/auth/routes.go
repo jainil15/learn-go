@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"learn/go/services/session"
 	"learn/go/services/user"
 	"learn/go/utils"
 	"log"
@@ -8,11 +9,12 @@ import (
 )
 
 type Handler struct {
-	store user.UserStore
+	userStore    user.UserStore
+	sessionStore session.SessionStore
 }
 
-func NewHandler(store user.UserStore) *Handler {
-	return &Handler{store: store}
+func NewHandler(userStore user.UserStore, sessionStore session.SessionStore) *Handler {
+	return &Handler{userStore: userStore, sessionStore: sessionStore}
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
@@ -39,11 +41,14 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.store.GetByEmail(payload.Email)
+	user, err := h.userStore.GetByEmail(payload.Email)
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
-			Message:    err.Error(),
+			Message:    "User with this email not found",
 			StatusCode: http.StatusNotFound,
+			Error: map[string][]string{
+				"email": {"User with this email not found"},
+			},
 		})
 		return
 	}
@@ -58,13 +63,33 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	_, err = h.sessionStore.GetSessionByID(user.Id)
+	if err != nil {
+		_, err := h.sessionStore.CreateSession(user.Id)
+		if err != nil {
+			utils.ErrorHandler(w, &utils.ErrorResponse{
+				Message: err.Error(),
+			})
+			return
+		}
+	}
 	log.Printf("Request: %v\n", user.Email)
+	accessToken, err := user.Createtoken()
+	if err != nil {
+		utils.ErrorHandler(w, &utils.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
 	err = utils.ResponseHandler(
 		w,
 		&utils.SuccessResponse{
 			StatusCode: http.StatusOK,
-			Result:     user,
-			Message:    "Success",
+			Result: map[string]interface{}{
+				"user":         user,
+				"access_token": accessToken,
+			},
+			Message: "Success",
 		},
 	)
 	if err != nil {

@@ -3,6 +3,7 @@ package auth
 import (
 	"bytes"
 	"encoding/json"
+	"learn/go/services/session"
 	"learn/go/services/user"
 	"log"
 	"net/http"
@@ -11,8 +12,10 @@ import (
 )
 
 func TestAuthServiceHandler(t *testing.T) {
-	mockStore := &user.MockUserStore{}
-	handler := NewHandler(mockStore)
+	mockUserStore := &user.MockUserStore{}
+	mockSessionStore := &session.MockStore{}
+
+	handler := NewHandler(mockUserStore, mockSessionStore)
 	if handler == nil {
 		t.Error("Handler is nil")
 	}

@@ -1,6 +1,8 @@
 package user
 
 import (
+	"fmt"
+	"learn/go/middlewares"
 	"learn/go/types"
 	"learn/go/utils"
 	"net/http"
@@ -15,11 +17,14 @@ func NewHandler(store UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
-	router.HandleFunc("GET /user", h.handleGetAll)
+	router.HandleFunc("GET /user",
+		middlewares.CheckAccessToken(h.handleGetAll),
+	)
 	router.HandleFunc("POST /user/register", h.handleRegister)
 }
 
 func (h *Handler) handleGetAll(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("User: %v", r.Context().Value("user"))
 	user := h.store.GetAll()
 	err := utils.ResponseHandler(w, &utils.SuccessResponse{
 		StatusCode: http.StatusOK,
