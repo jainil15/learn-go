@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"fmt"
+	"learn/go/config"
 	"log/slog"
 	"net/http"
 	"time"
@@ -54,43 +55,47 @@ func Logging(next http.Handler) http.Handler {
 		start := time.Now()
 		wrapped := &wrappedResponseWriter{w, http.StatusOK}
 		next.ServeHTTP(wrapped, r)
-		switch {
-		case wrapped.StatusCode >= 500:
-			slog.Info(
-				colorize(fmt.Sprintf("\033[| %v | %v | %v | %v",
+		logString := ""
+		env := config.Envs.Environment
+		if env == "development" {
+			switch {
+			case wrapped.StatusCode >= 500:
+				logString = colorize(fmt.Sprintf("| %v | %v | %v | %v",
 					wrapped.StatusCode,
 					r.Method,
 					r.URL.Path,
 					time.Since(start),
-				), red),
-			)
-		case wrapped.StatusCode >= 400:
-			slog.Info(
-				colorize(fmt.Sprintf("\033[| %v | %v | %v | %v",
+				), orange)
+			case wrapped.StatusCode >= 400:
+				logString = colorize(fmt.Sprintf("| %v | %v | %v | %v",
 					wrapped.StatusCode,
 					r.Method,
 					r.URL.Path,
 					time.Since(start),
-				), orange),
-			)
-		case wrapped.StatusCode >= 300:
-			slog.Info(
-				colorize(fmt.Sprintf("\033[| %v | %v | %v | %v",
+				), orange)
+			case wrapped.StatusCode >= 300:
+				logString = colorize(fmt.Sprintf("| %v | %v | %v | %v",
 					wrapped.StatusCode,
 					r.Method,
 					r.URL.Path,
 					time.Since(start),
-				), cyan),
-			)
-		default:
-			slog.Info(
-				colorize(fmt.Sprintf("\033[| %v | %v | %v | %v",
+				), cyan)
+			default:
+				logString = colorize(fmt.Sprintf("| %v | %v | %v | %v",
 					wrapped.StatusCode,
 					r.Method,
 					r.URL.Path,
 					time.Since(start),
-				), green),
+				), green)
+			}
+		} else {
+			logString = fmt.Sprintf("\033[| %v | %v | %v | %v",
+				wrapped.StatusCode,
+				r.Method,
+				r.URL.Path,
+				time.Since(start),
 			)
 		}
+		slog.Info(logString)
 	})
 }

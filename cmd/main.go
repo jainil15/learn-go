@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"learn/go/cmd/api"
 	"learn/go/config"
 	"learn/go/db"
@@ -19,7 +20,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error connecting to DB %v", err)
 	}
-	server := api.NewAPIServer(":8080", db)
+	port := config.Envs.Port
+	server := api.NewAPIServer(fmt.Sprintf(":%s", port), db)
 	err = server.Run()
 	if err != nil {
 		log.Fatal("Error strating the server")

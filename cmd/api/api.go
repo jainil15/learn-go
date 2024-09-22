@@ -6,7 +6,7 @@ import (
 	"learn/go/services/health"
 	"learn/go/services/session"
 	"learn/go/services/user"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
@@ -30,7 +30,8 @@ func NewAPIServer(addr string, db *sqlx.DB) *APIServer {
 
 func (server *APIServer) Run() error {
 	router := http.NewServeMux()
-	log.Println("Server started at 8080 ")
+	port := server.addr
+	slog.Info("Server started at", "Port", port)
 	// Health handler
 	healthHandler := health.NewHandler()
 	healthHandler.RegiesterRoutes(router)

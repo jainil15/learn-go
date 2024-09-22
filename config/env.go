@@ -17,12 +17,16 @@ func MustGetEnv(key string) string {
 type Config struct {
 	DatabaseUrl string
 	JwtSecret   string
+	Port        string
+	Environment string
 }
 
 func initConfig() Config {
 	return Config{
 		DatabaseUrl: MustGetEnv("DATABASE_URL"),
 		JwtSecret:   MustGetEnv("JWT_SECRET"),
+		Port:        MustGetEnv("PORT"),
+		Environment: MustGetEnv("ENVIRONMENT"),
 	}
 }
 
