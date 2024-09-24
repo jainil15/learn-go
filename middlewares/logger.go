@@ -36,6 +36,15 @@ var (
 	white        = RGB{255, 255, 255}
 )
 
+type WrappedLogger struct{}
+
+func (l *WrappedLogger) Debug(v ...interface{}) {
+	env := config.Envs.Environment
+	if env == "development" {
+		slog.Info(colorize(fmt.Sprint(v...), lightCyan))
+	}
+}
+
 type wrappedResponseWriter struct {
 	http.ResponseWriter
 	StatusCode int

@@ -9,3 +9,7 @@ func (v ValidationError) Add(key, message string) {
 func (v ValidationError) IsEmpty() bool {
 	return len(v) == 0
 }
+
+func (v ValidationError) Get(key string) []string {
+	return v[key]
+}

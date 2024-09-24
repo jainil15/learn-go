@@ -1,4 +1,4 @@
-SHELL=/bin/bash
+SHELL=/bin/zsh
 build:
 	@go build -o bin/learngo cmd/main.go
 

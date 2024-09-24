@@ -6,7 +6,6 @@ import (
 	"learn/go/services/health"
 	"learn/go/services/session"
 	"learn/go/services/user"
-	"log/slog"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
@@ -17,21 +16,23 @@ type IAPIServer interface {
 }
 
 type APIServer struct {
-	addr string
-	db   *sqlx.DB
+	addr   string
+	db     *sqlx.DB
+	logger *middlewares.WrappedLogger
 }
 
 func NewAPIServer(addr string, db *sqlx.DB) *APIServer {
 	return &APIServer{
-		addr: addr,
-		db:   db,
+		addr:   addr,
+		db:     db,
+		logger: &middlewares.WrappedLogger{},
 	}
 }
 
 func (server *APIServer) Run() error {
 	router := http.NewServeMux()
 	port := server.addr
-	slog.Info("Server started at", "Port", port)
+	server.logger.Debug("Server started at ", "Port", port)
 	// Health handler
 	healthHandler := health.NewHandler()
 	healthHandler.RegiesterRoutes(router)

@@ -1,9 +1,13 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"sync"
 )
+
+var lock = &sync.Mutex{}
 
 func MustGetEnv(key string) string {
 	val, ok := os.LookupEnv(key)
@@ -14,20 +18,42 @@ func MustGetEnv(key string) string {
 	return val
 }
 
-type Config struct {
+type config struct {
 	DatabaseUrl string
 	JwtSecret   string
 	Port        string
 	Environment string
 }
 
-func initConfig() Config {
-	return Config{
-		DatabaseUrl: MustGetEnv("DATABASE_URL"),
-		JwtSecret:   MustGetEnv("JWT_SECRET"),
-		Port:        MustGetEnv("PORT"),
-		Environment: MustGetEnv("ENVIRONMENT"),
+var Env *config
+
+func initConfig() *config {
+	if Env == nil {
+		lock.Lock()
+		defer lock.Unlock()
+		if Env == nil {
+			fmt.Println("init config")
+			Env = &config{
+				DatabaseUrl: MustGetEnv("DATABASE_URL"),
+				JwtSecret:   MustGetEnv("JWT_SECRET"),
+				Port:        MustGetEnv("PORT"),
+				Environment: MustGetEnv("ENVIRONMENT"),
+			}
+		} else {
+			fmt.Println("config already initialized")
+		}
+	} else {
+		fmt.Println("config already initialized")
 	}
+	return Env
 }
 
-var Envs = initConfig()
+func GetConfig() *config {
+	return initConfig()
+}
+
+var (
+	Envs  = GetConfig()
+	Envs2 = GetConfig()
+	Env3  = GetConfig()
+)

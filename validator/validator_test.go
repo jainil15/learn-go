@@ -1,6 +1,8 @@
 package validator
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestValidator(t *testing.T) {
 	t.Run("Testing Required", func(t *testing.T) {
@@ -38,6 +40,18 @@ func TestValidator(t *testing.T) {
 		}
 		if IsEmail("jainil@gmail.com") != true {
 			t.Error("Email function failed")
+		}
+	})
+
+	t.Run("Testing Regex Match", func(t *testing.T) {
+		if IsRegexMatch("test3", "test2") != false {
+			t.Error("Regex Match function failed", IsRegexMatch("test", "test"))
+		}
+		if IsRegexMatch("test", "test") != true {
+			t.Error("Regex Match function failed")
+		}
+		if IsRegexMatch(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`, `email`) != false {
+			t.Error("Regex Match function failed")
 		}
 	})
 }
