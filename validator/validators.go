@@ -10,11 +10,11 @@ func IsRequired(value string) bool {
 }
 
 func IsMinLength(value string, length int) bool {
-	return len(strings.TrimSpace(value)) > length
+	return len(strings.TrimSpace(value)) >= length
 }
 
 func IsMaxLength(value string, length int) bool {
-	return len(strings.TrimSpace(value)) < length
+	return len(strings.TrimSpace(value)) <= length
 }
 
 func IsEmail(value string) bool {

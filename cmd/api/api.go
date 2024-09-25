@@ -4,6 +4,8 @@ import (
 	"learn/go/middlewares"
 	"learn/go/services/auth"
 	"learn/go/services/health"
+	"learn/go/services/property"
+	"learn/go/services/propertyaccess"
 	"learn/go/services/session"
 	"learn/go/services/user"
 	"net/http"
@@ -42,6 +44,13 @@ func (server *APIServer) Run() error {
 	// Auth handler
 	authHandler := auth.NewHandler(user.NewStore(server.db), session.NewStore(server.db))
 	authHandler.RegisterRoutes(router)
+	// Property handler
+	propertyHandler := property.NewHandler(
+		property.NewStore(server.db),
+		propertyaccess.NewStore(server.db),
+	)
+	propertyHandler.RegisterRoutes(router)
+
 	httpServer := http.Server{
 		Addr:    server.addr,
 		Handler: middlewares.Logging(router),

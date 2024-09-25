@@ -11,7 +11,7 @@ type Property struct {
 	Email       string    `json:"email"        db:"email"`
 	PhoneNumber string    `json:"phone_number" db:"phone_number"`
 	Address     string    `json:"address"      db:"address"`
-	About       string    `json:"about"        db:"about"`
+	About       *string   `json:"about"        db:"about"`
 	CreatedAt   time.Time `json:"created_at"   db:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"   db:"updated_at"`
 }
@@ -24,9 +24,8 @@ type CreatePropertyPayload struct {
 	About       *string `json:"about"        db:"about"`
 }
 
-var phoneRegex = `^(\+62|0)[0-9]{10,12}$`
-
 func (c *CreatePropertyPayload) Validate() (errorMap validator.ValidationError) {
+	phoneRegex := `^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$`
 	errorMap = validator.ValidationError{}
 	if !validator.IsRequired(c.Email) {
 		errorMap.Add("email", "Email is required")
@@ -44,8 +43,8 @@ func (c *CreatePropertyPayload) Validate() (errorMap validator.ValidationError) 
 	if !validator.IsRequired(c.Address) {
 		errorMap.Add("address", "Address is required")
 	}
-	if c.About != nil && !validator.IsRequired(*c.About) {
-		errorMap.Add("about", "About is required")
+	if c.About != nil && !validator.IsMinLength(*c.About, 1) {
+		errorMap.Add("about", "Min 1 length required")
 	}
 	if errorMap.IsEmpty() {
 		return nil
