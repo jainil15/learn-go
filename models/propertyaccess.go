@@ -1,6 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+)
+
+type PropertyAccessStore interface {
+	GetAllByUserId(userId string) ([]Property, error)
+	Create(propertyId string, userId string) (*PropertyAccess, error)
+}
 
 type PropertyAccess struct {
 	Id         int       `json:"id"          db:"id"`

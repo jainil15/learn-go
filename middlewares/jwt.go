@@ -7,7 +7,6 @@ import (
 	"learn/go/config"
 	"learn/go/models"
 	"learn/go/utils"
-	"log"
 	"net/http"
 	"strings"
 
@@ -65,7 +64,6 @@ func getAccessTokenFromRequest(r *http.Request) string {
 	if len(accessTokenSplit) < 2 {
 		return ""
 	}
-	log.Printf("Auth Token :: %v\n\n", accessToken)
 	return strings.TrimSpace(strings.Split(accessToken, " ")[1])
 }
 
