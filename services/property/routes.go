@@ -144,8 +144,8 @@ func (h *Handler) handleGetById(w http.ResponseWriter, r *http.Request) {
 	if propertyId == "" {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message: "Property Id missing",
-			Error: map[string]string{
-				"propertyId": "Property id missing",
+			Error: map[string]interface{}{
+				"propertyId": []string{"Property id missing"},
 			},
 			StatusCode: http.StatusBadRequest,
 		})
@@ -155,8 +155,8 @@ func (h *Handler) handleGetById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message: "Property not found",
-			Error: map[string]string{
-				"propertyId": "Property not found with property id",
+			Error: map[string]interface{}{
+				"propertyId": []string{"Property not found with property id"},
 			},
 			StatusCode: http.StatusNotFound,
 		})
