@@ -1,5 +1,4 @@
 .envrc
 *.log
 .idea
-.vscode
 bin/
