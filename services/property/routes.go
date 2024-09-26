@@ -5,9 +5,12 @@ import (
 	"learn/go/models"
 	"learn/go/utils"
 	"net/http"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Handler struct {
+	db                  *sqlx.DB
 	propertyStore       models.PropertyStore
 	propertyAccessStore models.PropertyAccessStore
 }
@@ -15,16 +18,24 @@ type Handler struct {
 func NewHandler(
 	propertyStore models.PropertyStore,
 	propertyAccessStore models.PropertyAccessStore,
+	db *sqlx.DB,
 ) *Handler {
 	return &Handler{
 		propertyStore:       propertyStore,
 		propertyAccessStore: propertyAccessStore,
+		db:                  db,
 	}
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
-	router.HandleFunc("POST /property", middlewares.CheckAccessToken(h.handleCreate))
 	router.HandleFunc("GET /property", middlewares.CheckAccessToken(h.handleGetAllByUserId))
+	router.HandleFunc(
+		"GET /property/{propertyId}",
+		middlewares.CheckAccessToken(
+			middlewares.CheckPropertyAccess(h.propertyAccessStore, h.handleGetById),
+		),
+	)
+	router.HandleFunc("POST /property", middlewares.CheckAccessToken(h.handleCreate))
 }
 
 func (h *Handler) handleCreate(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +48,6 @@ func (h *Handler) handleCreate(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
 	if err := payload.Validate(); err != nil {
 
 		utils.ErrorHandler(w, &utils.ErrorResponse{
@@ -47,8 +57,16 @@ func (h *Handler) handleCreate(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
-	property, err := h.propertyStore.Create(&payload)
+	tx, err := h.db.Beginx()
+	if err != nil {
+		utils.ErrorHandler(w, &utils.ErrorResponse{
+			Error:      err,
+			Message:    "Error creating transaction",
+			StatusCode: http.StatusInternalServerError,
+		})
+	}
+	defer tx.Rollback()
+	property, err := h.propertyStore.Create(&payload, tx)
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Error:      err,
@@ -57,7 +75,6 @@ func (h *Handler) handleCreate(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
 	user, ok := r.Context().Value("user").(models.User)
 	if !ok {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
@@ -67,7 +84,7 @@ func (h *Handler) handleCreate(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	propertyaccess, err := h.propertyAccessStore.Create(property.Id, user.Id)
+	propertyaccess, err := h.propertyAccessStore.Create(property.Id, user.Id, tx)
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Error:      err,
@@ -87,8 +104,10 @@ func (h *Handler) handleCreate(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	tx.Commit()
 }
 
+// Handle GET all by User Id
 func (h *Handler) handleGetAllByUserId(w http.ResponseWriter, r *http.Request) {
 	user, ok := r.Context().Value("user").(models.User)
 	if !ok {
@@ -98,7 +117,7 @@ func (h *Handler) handleGetAllByUserId(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	propertyaccesses, err := h.propertyAccessStore.GetAllByUserId(user.Id)
+	properties, err := h.propertyAccessStore.GetAllByUserId(user.Id)
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message:    err.Error(),
@@ -108,7 +127,44 @@ func (h *Handler) handleGetAllByUserId(w http.ResponseWriter, r *http.Request) {
 	}
 	err = utils.ResponseHandler(w, &utils.SuccessResponse{
 		StatusCode: http.StatusOK,
-		Result:     map[string]interface{}{"propertyaccesses": propertyaccesses},
+		Result:     map[string]interface{}{"properties": properties},
+		Message:    "Success",
+	})
+	if err != nil {
+		utils.ErrorHandler(w, &utils.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+}
+
+// Handle get project by Id
+func (h *Handler) handleGetById(w http.ResponseWriter, r *http.Request) {
+	propertyId := r.PathValue("propertyId")
+	if propertyId == "" {
+		utils.ErrorHandler(w, &utils.ErrorResponse{
+			Message: "Property Id missing",
+			Error: map[string]string{
+				"propertyId": "Property id missing",
+			},
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+	property, err := h.propertyStore.GetById(propertyId)
+	if err != nil {
+		utils.ErrorHandler(w, &utils.ErrorResponse{
+			Message: "Property not found",
+			Error: map[string]string{
+				"propertyId": "Property not found with property id",
+			},
+			StatusCode: http.StatusNotFound,
+		})
+		return
+	}
+	err = utils.ResponseHandler(w, &utils.SuccessResponse{
+		StatusCode: http.StatusOK,
+		Result:     map[string]interface{}{"property": property},
 		Message:    "Success",
 	})
 	if err != nil {

@@ -10,6 +10,7 @@ import (
 type UserStore interface {
 	GetAll() *[]models.User
 	Register(user *models.RegisterUser) (*models.User, error)
+	// GetByEmail returns a user by email
 	GetByEmail(email string) (*models.User, error)
 }
 

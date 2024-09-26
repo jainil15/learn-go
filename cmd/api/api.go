@@ -2,12 +2,7 @@ package api
 
 import (
 	"learn/go/middlewares"
-	"learn/go/services/auth"
-	"learn/go/services/health"
-	"learn/go/services/property"
-	"learn/go/services/propertyaccess"
-	"learn/go/services/session"
-	"learn/go/services/user"
+	"learn/go/routes"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
@@ -35,25 +30,11 @@ func (server *APIServer) Run() error {
 	router := http.NewServeMux()
 	port := server.addr
 	server.logger.Debug("Server started at ", "Port", port)
-	// Health handler
-	healthHandler := health.NewHandler()
-	healthHandler.RegiesterRoutes(router)
-	// User handler
-	userHandler := user.NewHandler(user.NewStore(server.db))
-	userHandler.RegisterRoutes(router)
-	// Auth handler
-	authHandler := auth.NewHandler(user.NewStore(server.db), session.NewStore(server.db))
-	authHandler.RegisterRoutes(router)
-	// Property handler
-	propertyHandler := property.NewHandler(
-		property.NewStore(server.db),
-		propertyaccess.NewStore(server.db),
-	)
-	propertyHandler.RegisterRoutes(router)
-
+	chain := middlewares.CreateStack(middlewares.Logging)
+	routes.AddRoutes(router, server.db)
 	httpServer := http.Server{
 		Addr:    server.addr,
-		Handler: middlewares.Logging(router),
+		Handler: chain(router),
 	}
 	return httpServer.ListenAndServe()
 }

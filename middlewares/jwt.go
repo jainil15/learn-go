@@ -48,8 +48,8 @@ func CheckAccessToken(handlerFunc http.HandlerFunc) http.HandlerFunc {
 			})
 			return
 		}
-		encode, _ := json.Marshal(claims["user"])
 		// This is dogshit code maybe...........
+		encode, _ := json.Marshal(claims["user"])
 		u := models.User{}
 		_ = json.Unmarshal(encode, &u)
 		ctx = context.WithValue(ctx, "user", u)

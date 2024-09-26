@@ -3,10 +3,13 @@ package models
 import (
 	"learn/go/validator"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type PropertyStore interface {
-	Create(*CreatePropertyPayload) (*Property, error)
+	GetById(Id string) (*Property, error)
+	Create(*CreatePropertyPayload, *sqlx.Tx) (*Property, error)
 }
 
 type Property struct {
