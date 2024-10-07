@@ -32,7 +32,7 @@ func initConfig() *config {
 		lock.Lock()
 		defer lock.Unlock()
 		if Env == nil {
-			fmt.Println("init config")
+			fmt.Println("INIT CONFIG")
 			Env = &config{
 				DatabaseUrl: MustGetEnv("DATABASE_URL"),
 				JwtSecret:   MustGetEnv("JWT_SECRET"),
@@ -52,8 +52,4 @@ func GetConfig() *config {
 	return initConfig()
 }
 
-var (
-	Envs  = GetConfig()
-	Envs2 = GetConfig()
-	Env3  = GetConfig()
-)
+var Envs = GetConfig()

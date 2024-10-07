@@ -49,6 +49,8 @@ func ErrorHandler(w http.ResponseWriter, e *ErrorResponse) {
 		log.Fatalln(err)
 		return
 	}
+
+	log.Println("Enter handle Register")
 	w.Header().Add("Content-type", "application/json")
 	w.WriteHeader(e.StatusCode)
 	_, err = w.Write(val)

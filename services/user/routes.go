@@ -5,6 +5,7 @@ import (
 	"learn/go/middlewares"
 	"learn/go/models"
 	"learn/go/utils"
+	"log"
 	"net/http"
 )
 
@@ -23,8 +24,12 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 	router.HandleFunc("POST /user/register", h.handleRegister)
 }
 
-func (h *Handler) handleGetAll(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleGetById(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello world"))
 	fmt.Printf("User: %v", r.Context().Value("user"))
+}
+
+func (h *Handler) handleGetAll(w http.ResponseWriter, r *http.Request) {
 	user := h.store.GetAll()
 	err := utils.ResponseHandler(w, &utils.SuccessResponse{
 		StatusCode: http.StatusOK,
@@ -38,8 +43,17 @@ func (h *Handler) handleGetAll(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	var payload models.RegisterUserPayload
-
 	err := utils.ParseJSON(r, &payload)
+	error := payload.Validate()
+	if error != nil {
+		utils.ErrorHandler(w, &utils.ErrorResponse{
+			Error:      error,
+			StatusCode: http.StatusBadRequest,
+			Message:    "Error in validation",
+		})
+		return
+	}
+	log.Println(payload)
 	if err != nil {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message: err.Error(),
@@ -52,7 +66,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		Email:     payload.Email,
 		Password:  payload.Password,
 	}
-	error := registerUserPayload.Validate()
+	error = registerUserPayload.Validate()
 	if len(error) > 0 {
 		utils.ErrorHandler(w, &utils.ErrorResponse{
 			Message:    "Validation error",

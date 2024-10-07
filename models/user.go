@@ -2,6 +2,7 @@ package models
 
 import (
 	"learn/go/validator"
+	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -39,6 +40,8 @@ type LoginUser struct {
 }
 
 func (r *RegisterUserPayload) Validate() (errorMap validator.ValidationError) {
+	errorMap = make(validator.ValidationError)
+	log.Println("Validation Enter")
 	if strings.TrimSpace(r.Email) == "" {
 		errorMap.Add("email", "Email is required")
 	}
@@ -59,10 +62,14 @@ func (r *RegisterUserPayload) Validate() (errorMap validator.ValidationError) {
 		errorMap.Add("first_name", "First name must be at least 2 characters")
 	}
 	if strings.TrimSpace(r.LastName) == "" {
-		errorMap.Add("first_name", "Last name is required")
+		errorMap.Add("last_name", "Last name is required")
 	}
 	if strings.TrimSpace(r.LastName) != "" && len(strings.TrimSpace(r.LastName)) < 2 {
-		errorMap.Add("first_name", "Last name must be at least 2 characters")
+		errorMap.Add("last_name", "Last name must be at least 2 characters")
 	}
-	return
+	log.Printf("Error: %v\n", errorMap)
+	if len(errorMap) <= 0 {
+		return nil
+	}
+	return errorMap
 }
