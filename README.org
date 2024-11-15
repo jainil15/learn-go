@@ -11,7 +11,6 @@ func main() {
 
 #+RESULTS:
 : Hello World
-
 - Go natively handles Unicode
 - Run command is:
   #+BEGIN_SRC sh
